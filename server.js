@@ -14,7 +14,7 @@ const userRoutes = require('./routes/userRoutes');
 
 
 const corsOptions = {
-  origin: ['http://localhost:5173'],
+  origin: ['http://localhost:5173', 'https://redologin.netlify.app', "http://localhost:4000"],
   credentials: true,
   optionsSuccessStatus: 200
 };
@@ -28,6 +28,8 @@ const app = express();
 // Middleware
 app.use(express.json());
 app.use(cors(corsOptions));  
+
+app.use("/",express.static("dist"));
 
 // Routes
 app.use('/api/auth', authRoutes);
