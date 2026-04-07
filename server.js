@@ -2,32 +2,19 @@ const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cors = require('cors');  
-const connectDb = require("./config/db");
-dotenv.config();
-connectDb();
-
-
-
-
 const authRoutes = require('./routes/authroutes');
 const userRoutes = require('./routes/userRoutes');
+const connectDb = require("./config/db");
 
+dotenv.config();
 
-const corsOptions = {
-  origin: ['http://localhost:5173'],
-  credentials: true,
-  optionsSuccessStatus: 200
-};
-
-//
-
-
+connectDb();
 
 const app = express();
 
 // Middleware
 app.use(express.json());
-app.use(cors(corsOptions));  
+app.use(cors());  
 
 // Routes
 app.use('/api/auth', authRoutes);
