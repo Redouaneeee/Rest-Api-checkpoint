@@ -1,153 +1,35 @@
-const express = require("express");
-const mongoose = require("mongoose");
-const dotenv = require("dotenv");
-const connectDb = require("./config/db");
-const User = require('./models/User');
-
-
+const express = require('express');
+const mongoose = require('mongoose');
+const dotenv = require('dotenv');
 dotenv.config();
+const cors = require('cors');  
+const authRoutes = require('./routes/authroutes');
+const userRoutes = require('./routes/userRoutes');
+const connectDb = require("./config/db");
 
-connectDb()
 
+const corsOptions = {
+  origin: ['http://localhost:5173'],
+  credentials: true,
+  optionsSuccessStatus: 200
+};
+
+
+
+
+connectDb();
 
 const app = express();
 
+// Middleware
 app.use(express.json());
+app.use(cors(corsOptions));  
 
-// ============================================
-// 1. GET ROUTE - RETURN ALL USERS
-// ============================================
-app.get('/api/users', async (req, res) => {
-    try {
-  
-        const users = await User.find();
-        
-        res.status(200).json({
-            success: true,
-            count: users.length,
-            data: users
-        });
-    } catch (error) {
-        console.error('Error fetching users:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Server error',
-            error: error.message
-        });
-    }
+// Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+
+const PORT = process.env.PORT || 4000;
+app.listen(PORT, () => {
+    console.log(`🚀 Server listening on port ${PORT}`);
 });
-
-// ============================================
-// 2. POST ROUTE - ADD A NEW USER
-// ============================================
-app.post('/api/users', async (req, res) => {
-    try {
-       
-        const { name, email, password, age } = req.body;
-        
-       
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
-            return res.status(400).json({
-                success: false,
-                message: 'User with this email already exists'
-            });
-        }
-        
-      
-        const newUser = new User({
-            name,
-            email,
-            password,
-            age
-        });
-        
-       
-        const savedUser = await newUser.save();
-        
-       
-        res.status(201).json({
-            success: true,
-            message: 'User created successfully',
-            data: savedUser
-        });
-    } catch (error) {
-        console.error('Error creating user:', error);
-        
-        res.status(500).json({
-            success: false,
-            message: 'Server error',
-            error: error.message
-        });
-    }
-});
-
-// ============================================
-// 3. PUT ROUTE - EDIT A USER BY ID
-// ============================================
-app.put('/api/users/:id', async (req, res) => {
-    try {
-        const { id } = req.params;
-        const updates = req.body;
-        
-        
-        const updatedUser = await User.findByIdAndUpdate(id, updates, { new: true })
-        
-        if (!updatedUser) {
-            return res.status(404).json({
-                success: false,
-                message: 'User not found'
-            });
-        }
-        
-        res.status(200).json({
-            success: true,
-            message: 'User updated successfully',
-            data: updatedUser
-        });
-    } catch (error) {
-        console.error('Error updating user:', error);
-            res.status(500).json({
-            success: false,
-            message: 'Server error',
-            error: error.message
-        });
-    }
-});
-// ============================================
-// 4. DELETE ROUTE - REMOVE A USER BY ID
-// ============================================
-app.delete('/api/users/:id', async (req, res) => {
-    try {
-        const { id } = req.params;
-        
-        
-        const deletedUser = await User.findByIdAndDelete(id);
-        
-        
-        if (!deletedUser) {
-            return res.status(404).json({
-                success: false,
-                message: 'User not found'
-            });
-        }
-        
-       
-        res.status(200).json({
-            success: true,
-            message: 'User deleted successfully',
-            data: deletedUser
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: 'Server error',
-            error: error.message
-        });
-    }
-});
-
-
-app.listen(4000, () => {
-  console.log("listenning on port 4000")
-})
