@@ -1,11 +1,16 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
-
 const cors = require('cors');  
+const connectDb = require("./config/db");
+dotenv.config();
+connectDb();
+
+
+
+
 const authRoutes = require('./routes/authroutes');
 const userRoutes = require('./routes/userRoutes');
-const connectDb = require("./config/db");
 
 
 const corsOptions = {
@@ -16,8 +21,7 @@ const corsOptions = {
 
 //
 
-dotenv.config();
-connectDb();
+
 
 const app = express();
 
